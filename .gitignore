@@ -1,0 +1,11 @@
+# Archivos PDF
+**/*.pdf
+
+# Compilación de Python
+**/*.pyc
+
+# Comprimidos ZIP
+**/*.zip
+
+# Temporales de Emacs
+**/*~
