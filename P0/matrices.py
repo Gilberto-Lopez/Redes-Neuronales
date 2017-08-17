@@ -13,6 +13,44 @@ def imprime_matriz (X,n):
   for row in X:
     print (("{}\t"*n).format(*row))
 
+def prod_matrices (X,Y,n):
+  """Multiplica dos matrices cuadradas del mismo orden.
+  Parámetros
+  ----------
+  X : list (list (int))
+  Y : list (list (int))
+     Matrices a multiplicar.
+  n : int
+     Tamaño de las matrices.
+  Regresa
+  -------
+  Z : list (list (int))
+     Z = X.Y
+  """
+  Z = [[0]*n for _ in range (n)]
+  for i in range (n):
+    for j in range (n):
+      Zij = 0
+      for k in range (n):
+        Zij += A[i][k] * B[k][j]
+      Z[i][j] = Zij
+  return Z
+
+def inv_matriz (X,n):
+  """Invierte una matriz cuadrada de tamaño n.
+  Parámetros
+  ----------
+  X : list (list (int))
+     Matriz a invertir.
+  n : int
+     Tamaño de la matriz.
+  Regresa
+  -------
+  X' : list (list (int))
+      X' = X^{-1}
+  """
+  pass
+  
 # Tamaño
 n = randint (2,7)
 # Matriz A
@@ -28,29 +66,6 @@ print ("A :")
 imprime_matriz (A,n)
 print ("\nB :")
 imprime_matriz (B,n)
-
-def prod_matrices (X,Y,n):
-  """Multiplica dos matrices cuadradas del mismo orden.
-  Parámetros
-  ----------
-  X : list (list (int))
-  Y : list (list (int))
-     Matrices a multiplicar.
-  n : int
-     Tamaño de las matrices
-  Regresa
-  -------
-  Z : list (list (int))
-     Z = X.Y
-  """
-  Z = [[0]*n for _ in range (n)]
-  for i in range (n):
-    for j in range (n):
-      Zij = 0
-      for k in range (n):
-        Zij += A[i][k] * B[k][j]
-      Z[i][j] = Zij
-  return Z
 
 AB = prod_matrices (A,B,n)
 print ("\nA.B :")
