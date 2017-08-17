@@ -56,3 +56,26 @@ AB = prod_matrices (A,B,n)
 print ("\nA.B :")
 imprime_matriz (AB,n)
 
+# Delta de Kronecker
+delta = lambda n, m: 1 if n == m else 0
+# Identidad de tamaño n
+In = [[delta(i,j) for j in range (n)] for i in range (n)]
+# Matriz aumentada (A|In)
+AI = [RA + RI for (RA,RI) in zip(A,In)]
+
+for i in range (n):
+  for j in range (n):
+    Aji = AI[j][i]
+    if j != i and Aji != 0:
+      if AI[i][i] == 0:
+        AI[i] = [xi + xn for (xi,xn) in zip (AI[i],AI[n-1])]
+      Aii = AI[i][i]
+      AI[j] = [-Aii/Aji * x for x in AI[j]]
+      AI[j] = [xj + xi for (xj,xi) in zip (AI[j],AI[i])]
+for i in range (n):
+  aii = AI[i][i]
+  AI[i] = [aii * x for x in AI[i]]
+
+A_inv = [X[n:] for X in AI]
+imprime_matriz(A_inv,n)
+imprime_matriz(prod_matrices(A_inv,A,n),n)
