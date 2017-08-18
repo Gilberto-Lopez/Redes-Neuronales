@@ -49,8 +49,29 @@ def inv_matriz (X,n):
   X' : list (list (int))
       X' = X^{-1}
   """
-  pass
-  
+  # Delta de Kronecker
+  delta = lambda s, t: 1 if s == t else 0
+  # Identidad de tamaño n
+  In = [[delta(i,j) for j in range (n)] for i in range (n)]
+  # Matriz aumentada (X|In)
+  XI = [RX + RI for (RX,RI) in zip(X,In)]
+
+  for i in range (n): # Columna
+    for j in range (n): # Fila
+      Xji = XI[j][i]
+      if j != i and Xji != 0:
+        if XI[i][i] == 0:
+          XI[i] = [xi + xn for (xi,xn) in zip (XI[i],XI[n-1])]
+        Xii = XI[i][i]
+        XI[j] = [-r * Xii/Xji for r in XI[j]]
+        XI[j] = [xj + xi for (xj,xi) in zip (XI[j],XI[i])]
+  for i in range (n):
+    xii = XI[i][i]
+    XI[i] = [xii * r for r in XI[i]]
+  return [R[n:] for R in XI]
+
+# 2, Punto 1.
+
 # Tamaño
 n = randint (2,7)
 # Matriz A
@@ -67,30 +88,44 @@ imprime_matriz (A,n)
 print ("\nB :")
 imprime_matriz (B,n)
 
+# 2, Punto 2.
+
 AB = prod_matrices (A,B,n)
 print ("\nA.B :")
 imprime_matriz (AB,n)
 
-# Delta de Kronecker
-delta = lambda n, m: 1 if n == m else 0
-# Identidad de tamaño n
-In = [[delta(i,j) for j in range (n)] for i in range (n)]
-# Matriz aumentada (A|In)
-AI = [RA + RI for (RA,RI) in zip(A,In)]
+# 2, Punto 3.
 
+A_inv = inv_matriz (A,n)
+print ("\nA^{-1} :")
+imprime_matriz (A_inv, n)
+
+print ("\n A.A^{-1} :")
+imprime_matriz (prod_matrices(A,A_inv,n),n)
+print ("\n A^{-1}.A :")
+imprime_matriz (prod_matrices(A_inv,A,n),n)
+
+# 2, Punto 4.
+
+Z = [[randint (0,1) for _ in range (n)] for _ in range (n)]
 for i in range (n):
   for j in range (n):
-    Aji = AI[j][i]
-    if j != i and Aji != 0:
-      if AI[i][i] == 0:
-        AI[i] = [xi + xn for (xi,xn) in zip (AI[i],AI[n-1])]
-      Aii = AI[i][i]
-      AI[j] = [-Aii/Aji * x for x in AI[j]]
-      AI[j] = [xj + xi for (xj,xi) in zip (AI[j],AI[i])]
+    if Z[i][j] == 0:
+      Z[i][j] = False
+    else:
+      Z[i][j] = True
+C = [[0 for _ in range (n)] for _ in range (n)]
 for i in range (n):
-  aii = AI[i][i]
-  AI[i] = [aii * x for x in AI[i]]
-
-A_inv = [X[n:] for X in AI]
-imprime_matriz(A_inv,n)
-imprime_matriz(prod_matrices(A_inv,A,n),n)
+  for j in range (n):
+    if C[i][j]:
+      C[i][j] = A[i][j]
+    else:
+      C[i][j] = B[i][j]
+print ("\nC :")
+imprime_matriz (C,n)
+for i in range (n):
+  for j in range (n):
+    if C[i][j] < -5:
+      C[i][j] = 0
+print ("\nC :")
+imprime_matriz (C,n)
