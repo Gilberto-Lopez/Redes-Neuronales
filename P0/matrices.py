@@ -36,6 +36,65 @@ def prod_matrices (X,Y,n):
       Z[i][j] = Zij
   return Z
 
+def menor (X,i,j):
+  """Obtiene el menor_{i,j} de la matriz X.
+  Parámetros
+  ----------
+  X : list (list (int))
+     Matriz.
+  i : int
+  j : int
+     El menor a obtener.
+  Regresa
+  -------
+  M : list (list (int))
+     El menor_{i,j}
+  """
+  return [S[:j] + S[j+1:] for S in (X[:i]+X[i+1:])]
+
+def determinante (X,n):
+  """Calcula el determinante de la matriz X.
+  Parámetros
+  ----------
+  X : list (list (int))
+     Matriz.
+  n : int
+     Tamaño de la matriz.
+  Regresa
+  -------
+  d : int
+     El determinante de la matriz.
+  """
+  if n == 2:
+    return X[0][0]*X[1][1] - X[1][0]*X[0][1]
+  m = -1
+  det = 0
+  for i in range (n):
+    m *= -1
+    if X[0][i] != 0:
+      det += m*X[0][i]*determinante (menor (X,0,i), n-1)
+  return det
+
+def adj (X,n):
+  """Calcula la matriz de adjuntos de X.
+  Parámetros
+  ----------
+  X : list (list (int))
+     Matriz.
+  n : int
+     Tamaño de la matriz.
+  Regresa
+  -------
+  Z : list (list (int))
+     La matriz de ajuntos de X.
+  """
+  Adj = [[0 for _ in range (n)] for _ in range (n)]
+  for i in range (n):
+    for j in range (n):
+      s = (-1) ** (i+j % 2)
+      Adj[j][i] = s*determinante (menor (X,i,j), n-1)
+  return Adj
+
 def inv_matriz (X,n):
   """Invierte una matriz cuadrada de tamaño n.
   Parámetros
@@ -46,29 +105,44 @@ def inv_matriz (X,n):
      Tamaño de la matriz.
   Regresa
   -------
-  X' : list (list (int))
-      X' = X^{-1}
+  Y : list (list (int))
+      Y = X^{-1}
   """
-  # Delta de Kronecker
-  delta = lambda s, t: 1 if s == t else 0
-  # Identidad de tamaño n
-  In = [[delta(i,j) for j in range (n)] for i in range (n)]
-  # Matriz aumentada (X|In)
-  XI = [RX + RI for (RX,RI) in zip(X,In)]
-
-  for i in range (n): # Columna
-    for j in range (n): # Fila
-      Xji = XI[j][i]
-      if j != i and Xji != 0:
-        if XI[i][i] == 0:
-          XI[i] = [xi + xn for (xi,xn) in zip (XI[i],XI[n-1])]
-        Xii = XI[i][i]
-        XI[j] = [-r * Xii/Xji for r in XI[j]]
-        XI[j] = [xj + xi for (xj,xi) in zip (XI[j],XI[i])]
+  det = determinante (X,n)
+  adjunta = adj (X,n)
   for i in range (n):
-    xii = XI[i][i]
-    XI[i] = [xii * r for r in XI[i]]
-  return [R[n:] for R in XI]
+    for j in range (n):
+      adjunta[i][j] /= det
+  return adjunta
+
+#  # Delta de Kronecker
+#  delta = lambda s, t: 1 if s == t else 0
+#  # Identidad de tamaño n
+#  In = [[delta(i,j) for j in range (n)] for i in range (n)]
+#  # Matriz aumentada (X|In)
+#  XI = [RX + RI for (RX,RI) in zip(X,In)]
+#  print ("\n")
+#  imprime_matriz(XI,2*n)
+#
+#  for i in range (n): # Columna
+#    for j in range (n): # Fila
+#      Xji = XI[j][i]
+#      if j != i and Xji != 0:
+#        k = i+1
+#        while X[i][i] == 0 and k < n:
+#          XI[i] = [xi + xk for (xi,xk) in zip (XI[i],XI[k])]
+#          k += 1
+#        Xii = XI[i][i]
+#        if Xii == 0:
+#          raise Exception ("Matriz singular.")
+#        XI[j] = [-Xii*r/Xji for r in XI[j]]
+#        XI[j] = [rj + ri for (rj,ri) in zip(XI[j],XI[i])]
+#  for i in range (n):
+#    xii = XI[i][i]
+#    XI[i] = [r/xii for r in XI[i]]
+#  imprime_matriz (XI,2*n)
+#  print("\n\n--------------------")
+#  return [R[n:] for R in XI]
 
 # 2, Punto 1.
 
