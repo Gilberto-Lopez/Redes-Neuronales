@@ -43,7 +43,7 @@ def ortonormalizar():
   # Pide en la línea de comandos los 3 vectores que serán ortonormalizados.
   print("Ingresa los valores de cada vector, separados por un espacio, p. e. >v1: x0 x1 x2")
   for i in range(n):
-    v = input("v"+str(i)+": ").split()
+    v = input("v"+str(i)+": ").split(" ")
     v = [float(num) for num in v]
     a.append(v)
   a = np.array(a)
