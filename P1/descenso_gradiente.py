@@ -10,23 +10,27 @@ import random
 # y^i es el resultado del ejemplar X^i
 
 def h_ls (w,X):
-  return np.dot (X,w)
+  return np.dot(X,w)
+
+# J(w) = 0.5||Xw-y||^2
 
 def J_ls (w,X,y,h):
-  return (np.linalg.norm (h (w,X) - y)**2) /2
+  s = h(w,X)-y
+  return np.dot(np.transpose(s),s)/2
+
+# grad(J)(w) = X^t(Xw-y)
 
 def GJ_ls (w,X,y,h):
-  H = h(w,X)-y
-  return np.dot (np.transpose (X), H)
+  s = h(w,X)-y
+  return np.dot(np.transpose (X),s)
 
-def descenso_gradiente (J,GJ,X,y,w,h,e=0.01,alpha=0.2,it=1000):
-  # Punto inicial: origen
+def descenso_gradiente (J,GJ,X,y,w,h,e=0.1,alpha=0.2,it=1000):
   q = len(w)
-  P = np.copy (w)
-  j = 0
-  while J(P,X,y,h) >= e and j < it:
-    j += 1
-    P = P -alpha*GJ(P,X,y,h)
+  P = np.copy(w)
+  k = 0
+  while J(P,X,y,h) >= e and k < it:
+    k += 1
+    P = P - alpha*GJ(P,X,y,h)
   return P
 
 if __name__ == '__main__':
