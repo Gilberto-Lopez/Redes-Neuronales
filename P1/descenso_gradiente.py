@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 ### Descenso por el gradiente para mínimos cuadrados.
 
@@ -8,18 +9,28 @@ import numpy as np
 # y es el vector con los resultados y = [y^1 ... y^m]^t donde
 # y^i es el resultado del ejemplar X^i
 
-def h (w,X):
+def h_ls (w,X):
   return np.dot (X,w)
 
-def J (w,X,y):
+def J_ls (w,X,y,h):
   return (np.linalg.norm (h (w,X) - y)**2) /2
 
-def descenso_gradiente (J,NJ,X,y,w,h,e=0.01,alpha=0.2,it=1000)
+def GJ_ls (w,X,y,h):
+  H = h(w,X)-y
+  return np.dot (np.transpose (X), H)
+
+def descenso_gradiente (J,GJ,X,y,w,h,e=0.01,alpha=0.2,it=1000):
   # Punto inicial: origen
+  q = len(w)
   P = np.copy (w)
   j = 0
-  while J(w,X,y) >= e and j < it:
+  while J(P,X,y,h) >= e and j < it:
     j += 1
-    H = h (w,X) - y
-    P = P - alpha * np.dot(np.transpose(X[:,j]),H)
+    P = P -alpha*GJ(P,X,y,h)
   return P
+
+if __name__ == '__main__':
+  X = np.matrix([[1,1],[1,2],[1,3],[1,4]])
+  y = np.matrix([[2],[3],[5],[7]])
+  w = np.matrix([[random.uniform(-0.5,0.5)],[random.uniform(-0.5,0.5)]])
+  descenso_gradiente(J_ls,GJ_ls,X,y,w,h_ls)
