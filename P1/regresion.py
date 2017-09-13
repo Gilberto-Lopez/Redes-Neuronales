@@ -21,13 +21,6 @@ def minimos_cuadrados(x, y):
   # Fórmula
   print("LS: Fórmula: y = {0}x + {1}".format(m[0,0], b[0]))
   return (predicciones,m,b)
-  # Graficar el modelo original (negro) y las predicciones (rojo)
-  #plt.plot(x,y,'bo')
-   #plt.scatter(x, y,  color='black')
-  #plt.plot(x, predicciones, color='red',linewidth=3)
-  #plt.legend(['Datos observados','Función ajustada'])
-  #plt.title('Mínimos cuadrados')
-  #plt.show()
 
 def lasso(x,y):
   model = Lasso()
@@ -66,13 +59,18 @@ if __name__ == '__main__':
                               n_clusters_per_class=2)
   plt.scatter(X1[:, 0], X1[:, 1], marker='o', c=Y1,
               s=25, edgecolor='k')
-  plt.legend()
+  plt.legend(['Conjunto de datos'])
   plt.show()
   (predicciones_lr,m_lr,b_lr) = regresion_logistica(X1,Y1)
   plt.title("Regresión Logísitca")
-  plt.scatter(X1[:, 0], X1[:, 1], marker='o', c=predicciones_lr,
+  plt.gca().set_ylim([-4,4])
+  plt.scatter(X1[:, 0], X1[:, 1], marker='o', c=Y1,
               s=25, edgecolor='k')
-  plt.legend()
+  a = -m_lr[0,0]/m_lr[0,1]
+  xx = np.linspace(-3.5,3.5)
+  yy = a*xx - b_lr[0]/m_lr[0,1]
+  plt.plot(xx,yy,color = 'green',linewidth=2)
+  plt.legend(['Línea de calsificación','Datos'])
   plt.show()
 
   f = open ('coeficientes_ls.csv','w')
