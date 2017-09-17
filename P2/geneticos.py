@@ -5,7 +5,7 @@ class Individuo (object):
   algoritmos genéticos.
   """
 
-  def __init__ (self, tam = 5):
+  def __init__ (self, tam):
     """Crea un Individuo cuya representación en bits tiene tamaño TAM.
     Parámetros
     ----------
@@ -14,6 +14,20 @@ class Individuo (object):
     """
     # El cromosoma
     self.crom = [randint(0,1) for _ in range(tam)]
+    # El valor que representa el individuo
+    # Se implementa por motivos prácticos
+    self._val = 0
+    for i in range(tam):
+      self._val += self.crom[i]*(2**(tam-i-1))
+    self.fit = 0
+
+  def fitness (self):
+    """Regresa el fitness o aptitud del individuo.
+    Regresa
+    ----------
+    fitness : int
+    """
+    return self.fit
 
   @staticmethod
   def mutacion (individuo, p):
@@ -55,7 +69,7 @@ class Individuo (object):
 
   def __str__ (self):
     # Representación del individuo.
-    return self.crom.__str__()
+    return '[ '+('{} '*len(self.crom)).format(*self.crom) + ']'
 
   def __repr__ (self):
     # Representación del individuo.
@@ -66,7 +80,31 @@ class Poblacion (object):
   algoritmo.
   """
 
-  def __init__ (self, tam = 6, pc = 0.8, pm = 0.5):
+  def __init__ (self, tam, pc, pm, fitness):
     self.pob = [Individuo() for _ in range(tam)]
     self.pc = pc
     self.pm = pm
+    self.fit_f = fitness
+
+  def calcula_fitness (self):
+    """Calcula el fitness de todos los individuos en la población.
+    """
+    for individuo in self.pob:
+      individuo.fit = self.fit_f(individuo)
+
+if __name__ == '__main__':
+  # Parámetros del problema
+  # Tamaño de la rep. de individuo
+  tam_ind = 5
+  # Tamaño de la población
+  tam_pob = 6
+  # Probabilidad de cruce
+  pc = 0.8
+  # Probabilidad de mutación
+  pm = 0.5
+  # Generaiones a ejecutar el algoritmo
+  generaciones = [5,10,50,100]
+  # Función a minimizar
+  f = lambda x: return 100 - (x - 10)**4 + 50*(x - 10)**2 - 8*x
+  # Función de fitness
+  fitness = lambda ind : f(ind._val)
