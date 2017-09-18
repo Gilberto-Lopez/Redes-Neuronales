@@ -14,12 +14,16 @@ class Individuo (object):
     """
     # El cromosoma
     self.crom = [randint(0,1) for _ in range(tam)]
+    # El fitness del individuo
+    self.fit = 0
+
+  def valor (self):
     # El valor que representa el individuo
     # Se implementa por motivos prácticos
-    self._val = 0
+    val = 0
+    tam = len(self.crom)
     for i in range(tam):
-      self._val += self.crom[i]*(2**(tam-i-1))
-    self.fit = 0
+      val += self.crom[i]*(2**(tam-i-1))
 
   def fitness (self):
     """Regresa el fitness o aptitud del individuo.
@@ -69,7 +73,7 @@ class Individuo (object):
 
   def __str__ (self):
     # Representación del individuo.
-    return '[ '+('{} '*len(self.crom)).format(*self.crom) + ']'
+    return '[ '+('{} '*len(self.crom)).format(*self.crom)+']'
 
   def __repr__ (self):
     # Representación del individuo.
@@ -80,17 +84,46 @@ class Poblacion (object):
   algoritmo.
   """
 
-  def __init__ (self, tam, pc, pm, fitness):
-    self.pob = [Individuo() for _ in range(tam)]
-    self.pc = pc
-    self.pm = pm
+  def __init__ (self, tam_ind, tam, fitness, vacia = False):
+    """
+    """
+    self._ind = tam_ind
+    self._tam = tam
+    # Población
+    self.pob = [Individuo(tam_ind) for _ in range(tam)] if not vacia else []
     self.fit_f = fitness
+    # Total fitness
+    # Se tiene aquí por motivos prácticos
+    self._total_fit = 0
 
   def calcula_fitness (self):
     """Calcula el fitness de todos los individuos en la población.
     """
     for individuo in self.pob:
-      individuo.fit = self.fit_f(individuo)
+      s = self.fit_f(individuo)
+      individuo.fit = s
+      # Aprovechamos para calculat el total fitness
+      self._total_fit += s
+
+  def seleccion (self):
+    """
+    """
+    n = randint(0,self._total_fit)
+    return None
+
+  def agrega (self, individuo):
+    """
+    """
+    if len(self.pob) < self._tam && len(individuo.crom) == self._ind:
+      self.pob.append(individuo)
+
+  def __str__ (self):
+    # Representación de la población.
+    return ('{}\n'*self._tam).format(*self.pob)
+
+  def __repr__ (self):
+    # Representación de la población.
+    return self.__str__()  
 
 if __name__ == '__main__':
   # Parámetros del problema
@@ -104,7 +137,27 @@ if __name__ == '__main__':
   pm = 0.5
   # Generaiones a ejecutar el algoritmo
   generaciones = [5,10,50,100]
-  # Función a minimizar
+  # Función a maximizar
   f = lambda x: return 100 - (x - 10)**4 + 50*(x - 10)**2 - 8*x
   # Función de fitness
-  fitness = lambda ind : f(ind._val)
+  fitness = lambda ind: f(ind.valor())
+
+  # Creamos la población inicial y calculamos el fitness de sus individuos
+  P0 = Poblacion(tam_ind, tam_pob, fitness)
+  P0.calcula_fitness()
+  P = P0
+  for generacion in generaciones:
+    for i in range(generacion):
+      Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
+      for i in range(tam_pob):
+        padre1 = P.seleccion()
+        padre2 = P.seleccion()
+        (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
+        Individuo.mutacion(hijo1, pm)
+        Individuo.mutacion(hijo2, pm)
+        Q.agrega(hijo1)
+        Q.agrega(hijo2)
+      P = Q
+      P.calcula_fitness()
+    print(P)
+
