@@ -24,6 +24,7 @@ class Individuo (object):
     tam = len(self.crom)
     for i in range(tam):
       val += self.crom[i]*(2**(tam-i-1))
+    return val
 
   def fitness (self):
     """Regresa el fitness o aptitud del individuo.
@@ -73,7 +74,9 @@ class Individuo (object):
 
   def __str__ (self):
     # Representación del individuo.
-    return '[ '+('{} '*len(self.crom)).format(*self.crom)+']'
+    return ('[ '
+      +('{} '*len(self.crom)).format(*self.crom)
+      +'] Valor: {}\tFitness: {}'.format(self.valor(),self.fit))
 
   def __repr__ (self):
     # Representación del individuo.
@@ -85,7 +88,20 @@ class Poblacion (object):
   """
 
   def __init__ (self, tam_ind, tam, fitness, vacia = False):
-    """
+    """Crea una nueva población con una cantidad fija de individuos (con un
+    tamaño en su representación fija), con una función de fitness fija. La
+    población puede estar vacía dependiendo el flag VACIA.
+    Parámetros:
+    -----------
+    tam_ind : Int
+      El tamaño en la representación (cromosoma) de los individuos.
+    tam : Int
+      El tamaño máximo de la población.
+    fitness : Individuo -> Int
+      La función de fitness para evaluar a los individuos.
+    vacia : Bool
+      Flag que determina si la población debe ser vacía (True). Por defecto
+      su valor es False.
     """
     self._ind = tam_ind
     self._tam = tam
@@ -108,13 +124,20 @@ class Poblacion (object):
   def seleccion (self):
     """
     """
-    n = randint(0,self._total_fit)
+    #n = randint(0,self._total_fit)
+    return self.pob[randint(0,len(self.pob)-1)]
     return None
 
   def agrega (self, individuo):
+    """Agrega un nuevo individuo a la población actual.
+    La población no debe exceder el máximo de individuos y la representación
+    del nuevo debe coincidar con los demás miembros de la población.
+    Parámetros:
+    -----------
+    individuo : Individuo
+      El nuevo individuo.
     """
-    """
-    if len(self.pob) < self._tam && len(individuo.crom) == self._ind:
+    if len(self.pob) < self._tam and len(individuo.crom) == self._ind:
       self.pob.append(individuo)
 
   def __str__ (self):
@@ -138,7 +161,7 @@ if __name__ == '__main__':
   # Generaiones a ejecutar el algoritmo
   generaciones = [5,10,50,100]
   # Función a maximizar
-  f = lambda x: return 100 - (x - 10)**4 + 50*(x - 10)**2 - 8*x
+  f = lambda x: 100 - (x - 10)**4 + 50*(x - 10)**2 - 8*x
   # Función de fitness
   fitness = lambda ind: f(ind.valor())
 
@@ -146,18 +169,18 @@ if __name__ == '__main__':
   P0 = Poblacion(tam_ind, tam_pob, fitness)
   P0.calcula_fitness()
   P = P0
-  for generacion in generaciones:
-    for i in range(generacion):
-      Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
-      for i in range(tam_pob):
-        padre1 = P.seleccion()
-        padre2 = P.seleccion()
-        (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
-        Individuo.mutacion(hijo1, pm)
-        Individuo.mutacion(hijo2, pm)
-        Q.agrega(hijo1)
-        Q.agrega(hijo2)
-      P = Q
-      P.calcula_fitness()
-    print(P)
-
+  for i in range(1,generaciones[-1]+1):
+    Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
+    for _ in range(tam_pob//2):
+      padre1 = P.seleccion()
+      padre2 = P.seleccion()
+      (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
+      Individuo.mutacion(hijo1, pm)
+      Individuo.mutacion(hijo2, pm)
+      Q.agrega(hijo1)
+      Q.agrega(hijo2)
+    P = Q
+    P.calcula_fitness()
+    if i in generaciones:
+      print('Generación: {}\n\tPoblación:\n{}'.format(i,P))
+  print('Población resultante:\n{}'.format(P))
