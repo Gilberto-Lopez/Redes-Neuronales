@@ -17,7 +17,7 @@ class Individuo (object):
     # El fitness del individuo
     self.fit = 0
 
-  def valor (self):
+  def _valor (self):
     # El valor que representa el individuo
     # Se implementa por motivos prácticos
     val = 0
@@ -25,14 +25,6 @@ class Individuo (object):
     for i in range(tam):
       val += self.crom[i]*(2**(tam-i-1))
     return val
-
-  def fitness (self):
-    """Regresa el fitness o aptitud del individuo.
-    Regresa
-    ----------
-    fitness : int
-    """
-    return self.fit
 
   @staticmethod
   def mutacion (individuo, p):
@@ -76,7 +68,7 @@ class Individuo (object):
     # Representación del individuo.
     return ('[ '
       +('{} '*len(self.crom)).format(*self.crom)
-      +'] Valor: {}\tFitness: {}'.format(self.valor(),self.fit))
+      +'] Valor: {}\tFitness: {}'.format(self._valor(),self.fit))
 
   def __repr__ (self):
     # Representación del individuo.
@@ -122,11 +114,21 @@ class Poblacion (object):
       self._total_fit += s
 
   def seleccion (self):
+    """Operador de selección. Regresa un individuo de la población
+    aleatoriamente. La probabilidad de selección depende del fitness de los
+    individuos, individuos mejor adaptados tiene mayor probabilidad de ser
+    seleccionados.
+    Regresa:
+    -----------
+    individuo : Individuo
     """
-    """
+    while True:
+      for ind in self.pob:
+        if random() <= ind.fit / float(self._total_fit):
+          return ind
     #n = randint(0,self._total_fit)
-    return self.pob[randint(0,len(self.pob)-1)]
-    return None
+    #return self.pob[randint(0,len(self.pob)-1)]
+    #return None
 
   def agrega (self, individuo):
     """Agrega un nuevo individuo a la población actual.
@@ -155,7 +157,7 @@ if __name__ == '__main__':
   # Tamaño de la población
   tam_pob = 6
   # Probabilidad de cruce
-  pc = 0.8
+#  pc = 0.8
   # Probabilidad de mutación
   pm = 0.5
   # Generaiones a ejecutar el algoritmo
@@ -163,7 +165,9 @@ if __name__ == '__main__':
   # Función a maximizar
   f = lambda x: 100 - (x - 10)**4 + 50*(x - 10)**2 - 8*x
   # Función de fitness
-  fitness = lambda ind: f(ind.valor())
+  # f es un polinomio con valores máximo positivos, nos restringimos a los
+  # valores no negativos
+  fitness = lambda ind: max(0,f(ind._valor()))
 
   # Creamos la población inicial y calculamos el fitness de sus individuos
   P0 = Poblacion(tam_ind, tam_pob, fitness)
