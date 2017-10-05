@@ -35,10 +35,17 @@ class Individuo (object):
       El individuo que sufrirá la mutación.
     p : float
       La probabilidad de mutación.
+    Regresa
+    ----------
+    n : Individuo
+      El individuo resultante de generar una mutación en INDIVIDUO.
     """
+    n = Individuo (len(individuo.crom))
+    n.crom = individuo.crom[:]
     for i in range(len(individuo.crom)):
       if random() <= p:
-        individuo.crom[i] = 1 - individuo.crom[i]
+        n.crom[i] = 1 - n.crom[i]
+    return n
 
   @staticmethod
   def cruce (individuo1, individuo2):
@@ -195,8 +202,8 @@ if __name__ == '__main__':
       padre1 = P.seleccion()
       padre2 = P.seleccion()
       (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
-      Individuo.mutacion(hijo1, pm)
-      Individuo.mutacion(hijo2, pm)
+      hijo1 = Individuo.mutacion(hijo1, pm)
+      hijo2 = Individuo.mutacion(hijo2, pm)
       Q.agrega(hijo1)
       Q.agrega(hijo2)
     P = Q
