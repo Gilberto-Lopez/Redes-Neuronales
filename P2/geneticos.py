@@ -189,9 +189,10 @@ if __name__ == '__main__':
   f = lambda x: 100 - (x - 10)**4 + 50*(x - 10)**2 - 8*x
   # Función de fitness
   # f es un polinomio con valores máximo positivos, nos restringimos a los
-  # valores no negativos
+  # valores no negativos, 0.01 para evitar que el fitness total llegue a ser 0
   fitness = lambda ind: max(0.01,f(ind._valor()))
 
+  # El intervalo para graficar los valores no negativos de f
   x = np.arange(2,18,0.01)
 
   # Creamos la población inicial y calculamos el fitness de sus individuos
@@ -200,17 +201,21 @@ if __name__ == '__main__':
     plt.gca().set_xlim([2,18])
     # Los mejores individuos en cada generación
     xs = []
+    # Población inicial
     P0 = Poblacion(tam_ind, tam_pob, fitness)
     P0.calcula_fitness()
     P = P0
     for _ in range(1,g+1):
+      # Siguiente generación
       Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
+      # Elitismo: conservamos al mejor individuo
       mejor = Poblacion.mejor_individuo (P)
       xs.append(mejor._valor())
       Q.agrega(mejor)
       for _ in range(tam_pob//2):
         padre1 = P.seleccion()
         padre2 = P.seleccion()
+        # Los dos nuevos individuos
         (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
         hijo1 = Individuo.mutacion(hijo1, pm)
         hijo2 = Individuo.mutacion(hijo2, pm)
