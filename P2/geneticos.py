@@ -1,4 +1,6 @@
 from random import randint,random
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Individuo (object):
   """Representa un individuo, una solución del problema. La unidad básica de los
@@ -188,26 +190,42 @@ if __name__ == '__main__':
   # Función de fitness
   # f es un polinomio con valores máximo positivos, nos restringimos a los
   # valores no negativos
-  fitness = lambda ind: max(0,f(ind._valor()))
+  fitness = lambda ind: max(0.01,f(ind._valor()))
+
+  x = np.arange(2,18,0.01)
 
   # Creamos la población inicial y calculamos el fitness de sus individuos
-  P0 = Poblacion(tam_ind, tam_pob, fitness)
-  P0.calcula_fitness()
-  P = P0
-  for i in range(1,generaciones[-1]+1):
-    Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
-    mejor = Poblacion.mejor_individuo (P)
-    Q.agrega(mejor)
-    for _ in range(tam_pob//2):
-      padre1 = P.seleccion()
-      padre2 = P.seleccion()
-      (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
-      hijo1 = Individuo.mutacion(hijo1, pm)
-      hijo2 = Individuo.mutacion(hijo2, pm)
-      Q.agrega(hijo1)
-      Q.agrega(hijo2)
-    P = Q
-    P.calcula_fitness()
-    if i in generaciones:
-      print('Generación: {}\n\tPoblación:\n{}'.format(i,P))
-  print('Mejor Individuo:\t{}'.format(Poblacion.mejor_individuo (P)))
+  for g in generaciones:
+    plt.gca().set_ylim([0,700])
+    plt.gca().set_xlim([2,18])
+    # Los mejores individuos en cada generación
+    xs = []
+    P0 = Poblacion(tam_ind, tam_pob, fitness)
+    P0.calcula_fitness()
+    P = P0
+    for _ in range(1,g+1):
+      Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
+      mejor = Poblacion.mejor_individuo (P)
+      xs.append(mejor._valor())
+      Q.agrega(mejor)
+      for _ in range(tam_pob//2):
+        padre1 = P.seleccion()
+        padre2 = P.seleccion()
+        (hijo1,hijo2) = Individuo.cruce(padre1, padre2)
+        hijo1 = Individuo.mutacion(hijo1, pm)
+        hijo2 = Individuo.mutacion(hijo2, pm)
+        #Q.agrega(max([hijo1,hijo2],key=lambda x: x.fit))
+        Q.agrega(hijo1)
+        Q.agrega(hijo2)
+      P = Q
+      P.calcula_fitness()
+    print('Generaciones:\t{}'.format(g))
+    print('Mejor Individuo:\t{}'.format(Poblacion.mejor_individuo (P)))
+    
+    ys = [f(s) for s in xs]
+    plt.plot(x, f(x), 'r-')
+    plt.scatter(xs, ys)
+    plt.plot(xs, ys, '--')
+    plt.title('Algoritmo genético clásico.\nMáximo # de generaciones: {}'.format(g))
+    plt.legend(['f (x)','Soluciones'])
+    plt.show()
