@@ -56,12 +56,8 @@ class Individuo (object):
     s = randint(0, tam-1)
     hijo1 = Individuo(tam)
     hijo2 = Individuo(tam)
-    for i in range(s):
-      hijo1.crom[i] = individuo1.crom[i]
-      hijo2.crom[i] = individuo2.crom[i]
-    for i in range(s,tam):
-      hijo1.crom[i] = individuo2.crom[i]
-      hijo2.crom[i] = individuo1.crom[i]
+    hijo1.crom = individuo1.crom[:s] + individuo2.crom[s:]
+    hijo2.crom = individuo2.crom[:s] + individuo1.crom[s:]
     return (hijo1,hijo2)
 
   def __str__ (self):
@@ -110,7 +106,7 @@ class Poblacion (object):
     for individuo in self.pob:
       s = self.fit_f(individuo)
       individuo.fit = s
-      # Aprovechamos para calculat el total fitness
+      # Aprovechamos para calcular el fitness total
       self._total_fit += s
 
   def seleccion (self):
@@ -126,9 +122,6 @@ class Poblacion (object):
       for ind in self.pob:
         if random() <= ind.fit / float(self._total_fit):
           return ind
-    #n = randint(0,self._total_fit)
-    #return self.pob[randint(0,len(self.pob)-1)]
-    #return None
 
   def agrega (self, individuo):
     """Agrega un nuevo individuo a la población actual.
@@ -141,6 +134,27 @@ class Poblacion (object):
     """
     if len(self.pob) < self._tam and len(individuo.crom) == self._ind:
       self.pob.append(individuo)
+
+  @staticmethod
+  def mejor_individuo (poblacion):
+    """Devuelve al mejor individuo de la población dada, esto es, el individuo
+    con el fitness más alto.
+    Parámetros
+    ----------
+    poblacion : Poblacion
+      La población.
+    Regresa
+    ----------
+    m : Individuo
+      El mejor individuo de la población.
+    """
+    b = -1
+    m = None
+    for ind in poblacion.pob:
+      if ind.fit > b:
+        b = ind.fit
+        m = ind
+    return m
 
   def __str__ (self):
     # Representación de la población.
@@ -157,7 +171,7 @@ if __name__ == '__main__':
   # Tamaño de la población
   tam_pob = 6
   # Probabilidad de cruce
-#  pc = 0.8
+  #pc = 0.8
   # Probabilidad de mutación
   pm = 0.5
   # Generaiones a ejecutar el algoritmo
@@ -175,6 +189,8 @@ if __name__ == '__main__':
   P = P0
   for i in range(1,generaciones[-1]+1):
     Q = Poblacion(tam_ind, tam_pob, fitness, vacia=True)
+    mejor = Poblacion.mejor_individuo (P)
+    Q.agrega(mejor)
     for _ in range(tam_pob//2):
       padre1 = P.seleccion()
       padre2 = P.seleccion()
@@ -187,4 +203,4 @@ if __name__ == '__main__':
     P.calcula_fitness()
     if i in generaciones:
       print('Generación: {}\n\tPoblación:\n{}'.format(i,P))
-  print('Población resultante:\n{}'.format(P))
+  print('Mejor Individuo:\t{}'.format(Poblacion.mejor_individuo (P)))
