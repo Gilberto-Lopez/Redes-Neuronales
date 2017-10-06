@@ -14,13 +14,13 @@ def funcion(x):
 
 if __name__ == '__main__':
   # Número máximo de iteraciones
-  iteraciones = 2000
+  iteraciones = 200
   # Rango de interés
   x1 = 2.0
   x2 = 18.0
-  # 
+  # Valor recomendado para el ajuste de sigma
   c = 0.817
-  # El número de variables para f es 1
+  # El número n de variables para f es 1
   f = funcion
 
   # Punto inicial
@@ -30,15 +30,16 @@ if __name__ == '__main__':
   # Soluciones encontradas y su valor
   xs = [X]
   ys = [p]
-  # Mutaciones exitosas (mejor resultado que la solución actual)
-  S = 0
-  # Mutaciones no exitosas (no es mejor que la solución actual)
-  F = 0
+
+  # Mutaciones realizadas (1 para exitosas, 0 para no exitosas)
+  # Las mutaciones exitosas tienen mejor fitness que la solución actual
+  M = []
+  S,F = 0,0
   # Relación mutaciones exitosas sobre mutaciones totales
   ps = 0
   # Sigma la desviación estándar de la distribución normal
-  # Para sigma = 1 tiende a quedarse atorado en mínimos locales.
-  sig = 0.5
+  # Para sigma pequeña tiende a quedarse atorado en mínimos locales.
+  sig = 10
   for _ in range(iteraciones):
     # Generamos una nueva solución a partir de una mutación sobre la actual
     X_ = X + sig*np.random.normal()
@@ -50,12 +51,16 @@ if __name__ == '__main__':
       p = p_
       xs.append(X)
       ys.append(p)
-      S += 1
+      M.append(1)
     else:
-      F += 1
-    # Actualizamos ps
-    ps = S / float(S+F)
+      M.append(0)
+    # Actualizamos ps cada n iteraciones
+    # Nos fijamos en las últimas (a lo más) 10n mutaciones
+    M_10 = M[-10:]
+    ps = sum(M_10)/float(len(M_10))
     # Ajustamos sigma
+    # 1/5 success rule: Se maximiza la velocidad del progreso en la optimización
+    # cuando ~1/5 de las mutaciones resultan existosas
     if ps < 1.0/5:
       sig = sig*c
     elif ps > 1.0/5:
