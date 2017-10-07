@@ -53,6 +53,7 @@ def descenso_gradiente(alpha, iteraciones, precision, x0):
     # Graficar los puntos (x,f(x))
     plt.scatter(xs, ys)
     plt.plot(xs,ys)
+    plt.legend(['f (x)', 'Descenso'])
     print("Mínimo local en (x,y): ({}, {})".format(x0, y0))
 
 class Individuo (object):
@@ -227,7 +228,19 @@ class Poblacion (object):
     return self.__str__()  
 
 def estrategia_evolucionaria(sigma, iteraciones, c, x0):
-  """
+  """Estrategia evolucionaria (1+1). Método de optimización basado en principios
+  de variación y selección. Encuentra el mínimo de una función.
+  Parámetros
+  ----------
+  sigma : float
+    La desviación estándar de la distribución normal para la mutación de los
+    individuos.
+  iteraciones : int
+    El número de iteraciones a ejecutar el algoritmo.
+  c : float
+    Constante de ajuste de sigma durante la ejecución. Valor recomendado: 0.817.
+  x0 : int
+    El punto inicial del algoritmo.
   """
   # Punto inicial
   X = x0
@@ -272,6 +285,7 @@ def estrategia_evolucionaria(sigma, iteraciones, c, x0):
   # Graficación de los puntos (x,f(x))
   plt.scatter(xs,ys)
   plt.plot(xs,ys)
+  plt.legend(['f (x)', 'Soluciones'])
   print("Mínimo local en (x,y): ({}, {})".format(xs[-1], ys[-1]))
 
 
@@ -292,7 +306,8 @@ if __name__ == '__main__':
   alpha = 0.01 # constante de aprendizaje
   iteraciones = 200 # número máximo de iteraciones
   precision = 0.0001 # condición para terminar
-  x0 = random.randint(x1,x2)    # x0 punto inicial
+  x0 = randint(x1,x2)    # x0 punto inicial
+  print('Descenso por el gradiente:')
   descenso_gradiente(alpha,iteraciones,precision,x0)
 
   plt.title("Descenso del gradiente")
@@ -308,8 +323,6 @@ if __name__ == '__main__':
   tam_ind = 5
   # Tamaño de la población
   tam_pob = 6
-  # Probabilidad de cruce
-  #pc = 0.8
   # Probabilidad de mutación
   pm = 0.5
   # Generaiones a ejecutar el algoritmo
@@ -320,12 +333,11 @@ if __name__ == '__main__':
   # f es un polinomio con valores máximo positivos, nos restringimos a los
   # valores no negativos, 0.01 para evitar que el fitness total llegue a ser 0
   fitness = lambda ind: max(0.01,f(ind._valor()))
+  print('\nAlgoritmo Genético clásico:')
+  yg = f(x)
 
   # Creamos la población inicial y calculamos el fitness de sus individuos
   for g in generaciones:
-    # Solo nos interesa graficar en el intervalo [2,18]
-    plt.gca().set_ylim([0,700])
-    plt.gca().set_xlim([2,18])
     # Los mejores individuos en cada generación
     xs = []
     # Población inicial
@@ -357,11 +369,12 @@ if __name__ == '__main__':
     print('Mejor Individuo:\t{}'.format(Poblacion.mejor_individuo (P)))
     
     ys = [f(s) for s in xs]
-    plt.plot(x, f(x), 'r-')
+    plt.plot(x, yg, 'r-')
     plt.scatter(xs, ys)
     plt.plot(xs, ys)
     plt.title('Algoritmo genético clásico.\nMáximo # de generaciones: {}'.format(g))
     plt.legend(['f (x)','Soluciones'])
+    plt.grid()
     plt.show()
 
 
@@ -378,6 +391,7 @@ if __name__ == '__main__':
   sigma = 10
   # El número de iteraciones y el punto inicial x0 son los mismos que los usados
   # en el descenso por el gradiente.
+  print('\nEstrategia evolucionaria (1+1):')
   estrategia_evolucionaria(sigma, iteraciones, c, x0)
 
   plt.title('Estrategia evolucionaria 1+1.')
