@@ -9,3 +9,6 @@
 
 # Temporales de Emacs
 **/*~
+
+# Imagenes
+**/*.png
