@@ -100,7 +100,7 @@ class Perceptron (object):
     e : Float
       El error resultante al clasificar el conjunto después del entrenamiento.
     """
-    m = len (conjunto)
+    (m,_) = conjunto.shape
     # Valores absolutos de los errores de la iteración
     errores = [0 for _ in range (m)]
     for _ in range (iteraciones):
@@ -113,17 +113,17 @@ class Perceptron (object):
     return (self.theta,self.pesos, d)
 
 if __name__ == '__main__':
-  D = np.matrix([[1.4,54.1],
-                 [2.7,76.2],
-                 [7.7,14.4],
-                 [3.5,54.4],
-                 [8.3,0.35],
-                 [1.9,76.5],
-                 [7.8,34.3],
-                 [9.9,12.4],
-                 [3.8,52.8],
-                 [9.3,28.0]])
-  y = np.matrix([1,1,-1,1,-1,1,-1,-1,1,-1]).T
+  D = np.array([[1.4,54.1],
+                [2.7,76.2],
+                [7.7,14.4],
+                [3.5,54.4],
+                [8.3,0.35],
+                [1.9,76.5],
+                [7.8,34.3],
+                [9.9,12.4],
+                [3.8,52.8],
+                [9.3,28.0]])
+  y = np.array([1,1,-1,1,-1,1,-1,-1,1,-1])
 
   ### PERCEPTRÓN SIMPLE
   
@@ -131,21 +131,21 @@ if __name__ == '__main__':
   # Parámetros del perceptrón, dos dimensiones, tasa de aprendizaje 0.003
   params = {'n':2, 'tasa_aprendizaje':0.003}
   p = Perceptron (**params)
-  print('Inicio\n\tPesos: {}'.format([p.theta]+p.pesos))
+  print('Inicio\n\tPesos: (Theta) {} {}'.format(p.theta,p.pesos))
   # Entrenamos el perceptrón
   (t,w,e) = p.entrena (conjunto = D, salidas = y)
-  print('Final\n\tPesos: (Theta) {} {}\tError:{}'.format(t,w,e))
+  print('Final\n\tPesos: (Theta) {} {}\tError: {}'.format(t,w,e))
   # Graficamos los puntos y el plano discriminante (recta)
   a = -w[0,0]/w[0,1]
   b = t/w[0,1]
   plano = 'y = {}x + {}'.format(a,b)
   print('Ecuación del plano: ' + plano)
   plt.scatter(D[:,0],D[:,1],c=y)
-  xx = np.linspace(1,10)
+  xx = np.linspace(1,10,10)
   yy = a*xx + b
   plt.plot(xx,yy,color='green',linewidth=1)
   plt.title('Perceptrón Simple')
   plt.xlabel('pH')
   plt.ylabel('Concentración de Fe')
-  plt.legend(plano)
+  plt.legend([plano])
   plt.show()
