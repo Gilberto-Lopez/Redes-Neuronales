@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # python 2.7
 
-from random import uniform
 import math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +16,7 @@ class Perceptron (object):
   def __init__ (self, n, activacion = SIGNUM, tasa_aprendizaje = 0.1, error = 0.1):
     """Inicializa un perceptrón con una cantidad fija de pesos para las
     entradas, establecidos como números aleatorios en el intervalo
-    [-1,1], y un umbral para el sesgo del perceptrón en ese mismo
+    [-1,1), y un umbral para el sesgo del perceptrón en ese mismo
     intervalo. También recibe la función de activación para el preceptrón,
     la tasa de aprendizaje (en el intervalo (0,1)) y el umbral de error
     para el entrenamiento (no negativo).
@@ -29,15 +28,16 @@ class Perceptron (object):
       La función de activación. SIGNUM por defecto.
     tasa_aprendizaje : Float
       La tasa de aprendizaje. Número positivo.
-    error : float
-      Umbral de error para el entrenamiento.
+    error : Float
+      Umbral de error para el entrenamiento. Número positivo.
     """
     self.n = n
-    self.pesos = [uniform (-1, 1) for _ in range (n)]
-    self.theta = uniform (-1, 1)
+    params = {'low':-1.0, 'high':1.0, 'size':(1,n)}
+    self.pesos = np.random.uniform(**params)
+    self.theta = np.random.uniform (-1, 1)
     self.f = activacion
     self.alpha = tasa_aprendizaje
-    self.error = abs (error)
+    self.error = error
 
   def predice (self, entradas):
     """Calcula la salida del perceptrón para un ejemplar dado.
@@ -47,7 +47,7 @@ class Perceptron (object):
     theta el umbral y f es la función de activación del perceptrón.
     Parámetros:
     -----------
-    entradas : [Float]
+    entradas : np.array Float
       Los valores de entrada para el perceptrón (ejemplar).
     Regresa:
     -----------
@@ -56,7 +56,7 @@ class Perceptron (object):
     """
     if len (entradas) != self.n:
       raise Exception ('Número de entradas incorrecto.')
-    suma_ponderada = sum ([w_i * x_i for (w_i, x_i) in zip (self.pesos, entradas)])
+    suma_ponderada = self.pesos.dot(entradas)
     return self.f (suma_ponderada - self.theta)
 
   def __entrena (self, ejemplar, salida_esperada):
@@ -70,10 +70,11 @@ class Perceptron (object):
     error = salida_esperada - salida_perceptron
     if error != 0:
       self.theta = self.theta - self.alpha * error
-      self.pesos = [w_i + self.alpha * x_i * error for (w_i, x_i) in zip (self.pesos, ejemplar)]
+      self.pesos = self.pesos + self.alpha*error*ejemplar.T
 
       # *** El proceso de entrenamiento se muestra en pantalla.
-      print('Pesos actualizados:\t{}'.format([self.theta] + self.pesos))
+      print('Pesos actualizados:\t(Theta) {} {}'.format(self.theta, self.pesos))
+    # Valores absolutos de los errores de la iteración
     return abs (error)
 
   def entrena (self, conjunto, salidas, iteraciones = 1000):
@@ -84,61 +85,67 @@ class Perceptron (object):
     1000 por defecto.
     Parámetros:
     -----------
-    conjunto : [[Float]]
-      El conjunto de ejemplares para el entrenamiento.
-    salidas : [Int]
-      El conjunto de salidas esperadas para cada ejemplar.
+    conjunto : np.array Float
+      El conjunto de ejemplares para el entrenamiento. shape m x n
+    salidas : np.array Int
+      El conjunto de salidas esperadas para cada ejemplar. shape n x 1
     iteraciones : Int
       El número máximo de iteraciones permitidas.
     Regresa:
     -----------
-    w : [Float]
-      La lista de pesos resultantes del entrenamiento
+    t : Float
+      Theta, el discriminante.
+    w : np.array Float
+      El vector de pesos resultantes del entrenamiento.
     e : Float
       El error resultante al clasificar el conjunto después del entrenamiento.
     """
-    # Valores absolutos de los errores de la iteración
     m = len (conjunto)
+    # Valores absolutos de los errores de la iteración
     errores = [0 for _ in range (m)]
     for _ in range (iteraciones):
       for i in range (m):
-        errores[i] = self.__entrena (conjunto[i], salidas[i])
+        errores[i] = self.__entrena (conjunto[i,:].T, salidas[i])
       d = sum (errores) / float(m)
       print('*** Error total en la iteración: {}'.format(d))
       if d <= self.error:
         break
-    return ([self.theta]+self.pesos, d)
+    return (self.theta,self.pesos, d)
 
 if __name__ == '__main__':
-  D = [[1.4,54.1],
-    [2.7,76.2],
-    [7.7,14.4],
-    [3.5,54.4],
-    [8.3,0.35],
-    [1.9,76.5],
-    [7.8,34.3],
-    [9.9,12.4],
-    [3.8,52.8],
-    [9.3,28.0]]
-  y = [1,1,-1,1,-1,1,-1,-1,1,-1]
+  D = np.matrix([[1.4,54.1],
+                 [2.7,76.2],
+                 [7.7,14.4],
+                 [3.5,54.4],
+                 [8.3,0.35],
+                 [1.9,76.5],
+                 [7.8,34.3],
+                 [9.9,12.4],
+                 [3.8,52.8],
+                 [9.3,28.0]])
+  y = np.matrix([1,1,-1,1,-1,1,-1,-1,1,-1]).T
 
   ### PERCEPTRÓN SIMPLE
   
   print('Perceptrón Simple:\n')
+  # Parámetros del perceptrón, dos dimensiones, tasa de aprendizaje 0.003
   params = {'n':2, 'tasa_aprendizaje':0.003}
   p = Perceptron (**params)
   print('Inicio\n\tPesos: {}'.format([p.theta]+p.pesos))
-  (w,e) = p.entrena (conjunto = D, salidas = y)
-  print('Final\n\tPesos: {}\tError:{}'.format(w,e))
-
-  a = -w[1]/w[2]
-  b = -w[0]/w[2]
-  print('Ecuación del plano: y = {}x + {}'.format(a,b))
-  plt.scatter([s[0] for s in D],[s[1] for s in D],c=y)
+  # Entrenamos el perceptrón
+  (t,w,e) = p.entrena (conjunto = D, salidas = y)
+  print('Final\n\tPesos: (Theta) {} {}\tError:{}'.format(t,w,e))
+  # Graficamos los puntos y el plano discriminante (recta)
+  a = -w[0,0]/w[0,1]
+  b = t/w[0,1]
+  plano = 'y = {}x + {}'.format(a,b)
+  print('Ecuación del plano: ' + plano)
+  plt.scatter(D[:,0],D[:,1],c=y)
   xx = np.linspace(1,10)
-  yy = a*xx -b
+  yy = a*xx + b
   plt.plot(xx,yy,color='green',linewidth=1)
   plt.title('Perceptrón Simple')
   plt.xlabel('pH')
   plt.ylabel('Concentración de Fe')
+  plt.legend(plano)
   plt.show()
