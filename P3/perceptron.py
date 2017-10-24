@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # python 2.7
 
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -127,7 +126,7 @@ if __name__ == '__main__':
 
   ### PERCEPTRÓN SIMPLE
   
-  print('Perceptrón Simple:\n')
+  print('*** Perceptrón Simple:\n')
   # Parámetros del perceptrón, dos dimensiones, tasa de aprendizaje 0.003
   params = {'n':2, 'tasa_aprendizaje':0.003}
   p = Perceptron (**params)
@@ -149,3 +148,10 @@ if __name__ == '__main__':
   plt.ylabel('Concentración de Fe')
   plt.legend([plano])
   plt.show()
+
+  while True:
+    pH = float(input('Introduzca el pH:  '))
+    Fe = float(input('Introduzca la concentración de Fe:  '))
+    prediccion = p.predice(np.array([pH,Fe]))
+    suelo = 'Alcalino' if prediccion == -1 else 'Ácido'
+    print('Tipo de suelo: ' + suelo)
