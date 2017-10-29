@@ -12,17 +12,22 @@ class Perceptron (object):
   # Función signo. Función de activación.
   SIGNUM = lambda x: 1 if x > 0 else -1
 
-  def __init__ (self, n, activacion = SIGNUM, tasa_aprendizaje = 0.1, error = 0.1):
+  _tipos = ['simple','ADALINE']
+
+  def __init__ (self, n, tipo, activacion = SIGNUM, tasa_aprendizaje = 0.1, error = 0.1):
     """Inicializa un perceptrón con una cantidad fija de pesos para las
     entradas, establecidos como números aleatorios en el intervalo
     [-1,1), y un umbral para el sesgo del perceptrón en ese mismo
     intervalo. También recibe la función de activación para el preceptrón,
     la tasa de aprendizaje (en el intervalo (0,1)) y el umbral de error
-    para el entrenamiento (no negativo).
+    para el entrenamiento (no negativo). Los tipos de perceptrones permitidos
+    son el perceptrón simple ('simple') y ADALINE ('ADALINE').
     Parámetros:
     -----------
     n : Int
       El número de entradas del perceptrón.
+    tipo : String
+      El tipo del perceptrón.
     activacion : Float -> Int
       La función de activación. SIGNUM por defecto.
     tasa_aprendizaje : Float
@@ -31,6 +36,10 @@ class Perceptron (object):
       Umbral de error para el entrenamiento. Número positivo.
     """
     self.n = n
+    if not tipo in Perceptron._tipos:
+      raise Exception('Tipos de perceptrones permitidos: \'{}\',\'{}\'.'
+        .format(*Perceptron._tipos))
+    self.tipo = tipo
     params = {'low':-1.0, 'high':1.0, 'size':(1,n)}
     self.pesos = np.random.uniform(**params)
     self.theta = np.random.uniform (-1, 1)
@@ -60,17 +69,23 @@ class Perceptron (object):
 
   def __entrena (self, ejemplar, salida_esperada):
     # Método auxiliar para entrena(), calcula el error del perceptrón
-    # con un ejemplar dado y actualiza los pesos del perceptrón.
+    # con un ejemplar dado y actualiza los pesos del perceptrón ADALINE.
     salida_perceptron = self.predice (ejemplar)
 
     # *** El proceso de entrenamiento se muestra en pantalla.
-    print('Ejemplar: {}\tSalida: {}\tSalida esperada: {}'.format(ejemplar, salida_perceptron, salida_esperada))
+    print('Ejemplar: {}\tSalida: {}\tSalida esperada: {}'
+      .format(ejemplar, salida_perceptron, salida_esperada))
 
     error = salida_esperada - salida_perceptron
     if error != 0:
-      self.theta = self.theta - self.alpha * error
-      self.pesos = self.pesos + self.alpha*error*ejemplar.T
-
+      if self.tipo == 'ADALINE':
+        # Regla de aprendizaje para perceptrón ADALINE
+        self.theta = self.theta - self.alpha*error
+        self.pesos = self.pesos + self.alpha*error*ejemplar.T
+      else:
+        # Regla de aprendizaje para perceptrón simple
+        self.theta = self.theta - salida_esperada
+        self.pesos = self.pesos + salida_esperada*ejemplar.T
       # *** El proceso de entrenamiento se muestra en pantalla.
       print('Pesos actualizados:\t(Theta) {} {}'.format(self.theta, self.pesos))
     # Valores absolutos de los errores de la iteración
@@ -105,7 +120,7 @@ class Perceptron (object):
     for _ in range (iteraciones):
       for i in range (m):
         errores[i] = self.__entrena (conjunto[i,:].T, salidas[i])
-      d = sum (errores) / float(m)
+      d = sum (errores) / (2.0*m)
       print('*** Error total en la iteración: {}'.format(d))
       if d <= self.error:
         break
@@ -128,7 +143,7 @@ if __name__ == '__main__':
   
   print('*** Perceptrón Simple:\n')
   # Parámetros del perceptrón, dos dimensiones, tasa de aprendizaje 0.003
-  params = {'n':2, 'tasa_aprendizaje':0.003}
+  params = {'n':2, 'tipo':'simple'}
   p = Perceptron (**params)
   print('Inicio\n\tPesos: (Theta) {} {}'.format(p.theta,p.pesos))
   # Entrenamos el perceptrón
