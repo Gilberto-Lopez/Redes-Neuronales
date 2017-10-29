@@ -163,7 +163,7 @@ if __name__ == '__main__':
   a = -w[0,0]/w[0,1]
   b = t/w[0,1]
   plano = 'y = {}x + {}'.format(a,b)
-  print('Ecuación del plano: ' + plano)
+  print('Ecuación del plano: {}\n'.format(plano))
   plt.scatter(D[:,0],D[:,1],c=y)
   xx = np.linspace(1,10,10)
   yy = a*xx + b
@@ -174,13 +174,16 @@ if __name__ == '__main__':
   plt.legend([plano])
   plt.show()
 
-#  while True:
-#    # Ejemplo de predicción
-#    pH = float(input('Introduzca el pH:  '))
-#    Fe = float(input('Introduzca la concentración de Fe:  '))
-#    prediccion = p.predice(np.array([pH,Fe]))
-#    suelo = 'Alcalino' if prediccion == -1 else 'Ácido'
-#    print('Tipo de suelo: ' + suelo)
+  while True:
+    opt = input('¿Desea realizar una predición del tipo de suelo? (y/n) ')
+    if opt == 'n':
+      break
+    # Ejemplo de predicción
+    pH = float(input('Introduzca el pH:  '))
+    Fe = float(input('Introduzca la concentración de Fe:  '))
+    prediccion = p.predice(np.array([pH,Fe]))
+    suelo = 'Alcalino' if prediccion == -1 else 'Ácido'
+    print('Tipo de suelo: {}\n'.format(suelo))
 
   ### PERCEPTRÓN ADALINE
 
@@ -190,9 +193,10 @@ if __name__ == '__main__':
             'tipo':'ADALINE',
             'activacion':(lambda x: x),
             'tasa_aprendizaje':0.3,
-            'error':0.001}
+            'error':0.003}
   p = Perceptron (**params)
   print('Inicio\n\tPesos: (Theta) {} {}'.format(p.theta,p.pesos))
   # Entrenamos el perceptrón
   (t,w,e) = p.entrena (conjunto = B, salidas = yn)
   print('Final\n\tPesos: (Theta) {} {}\tError: {}'.format(t,w,e))
+
