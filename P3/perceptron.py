@@ -14,7 +14,8 @@ class Perceptron (object):
 
   _tipos = ['simple','ADALINE']
 
-  def __init__ (self, n, tipo, activacion = SIGNUM, tasa_aprendizaje = 0.1, error = 0.1):
+  def __init__ (self, n, tipo,
+    activacion = SIGNUM, tasa_aprendizaje = 0.1, error = 0.1):
     """Inicializa un perceptrón con una cantidad fija de pesos para las
     entradas, establecidos como números aleatorios en el intervalo
     [-1,1), y un umbral para el sesgo del perceptrón en ese mismo
@@ -139,11 +140,20 @@ if __name__ == '__main__':
                 [9.3,28.0]])
   y = np.array([1,1,-1,1,-1,1,-1,-1,1,-1])
 
+  B = np.array([[0,0,1],
+                [0,1,0],
+                [0,1,1],
+                [1,0,0],
+                [1,0,1],
+                [1,1,0],
+                [1,1,1],])
+  yn = np.array([1,2,3,4,5,6,7])
+
   ### PERCEPTRÓN SIMPLE
   
   print('*** Perceptrón Simple:\n')
-  # Parámetros del perceptrón, dos dimensiones, tasa de aprendizaje 0.003
-  params = {'n':2, 'tipo':'simple'}
+  # Parámetros del perceptrón
+  params = {'n':2, 'tipo':'simple', 'error':0}
   p = Perceptron (**params)
   print('Inicio\n\tPesos: (Theta) {} {}'.format(p.theta,p.pesos))
   # Entrenamos el perceptrón
@@ -164,9 +174,25 @@ if __name__ == '__main__':
   plt.legend([plano])
   plt.show()
 
-  while True:
-    pH = float(input('Introduzca el pH:  '))
-    Fe = float(input('Introduzca la concentración de Fe:  '))
-    prediccion = p.predice(np.array([pH,Fe]))
-    suelo = 'Alcalino' if prediccion == -1 else 'Ácido'
-    print('Tipo de suelo: ' + suelo)
+#  while True:
+#    # Ejemplo de predicción
+#    pH = float(input('Introduzca el pH:  '))
+#    Fe = float(input('Introduzca la concentración de Fe:  '))
+#    prediccion = p.predice(np.array([pH,Fe]))
+#    suelo = 'Alcalino' if prediccion == -1 else 'Ácido'
+#    print('Tipo de suelo: ' + suelo)
+
+  ### PERCEPTRÓN ADALINE
+
+  print('*** Perceptrón ADALINE:\n')
+  # Parámetros del perceptrón
+  params = {'n':3,
+            'tipo':'ADALINE',
+            'activacion':(lambda x: x),
+            'tasa_aprendizaje':0.3,
+            'error':0.001}
+  p = Perceptron (**params)
+  print('Inicio\n\tPesos: (Theta) {} {}'.format(p.theta,p.pesos))
+  # Entrenamos el perceptrón
+  (t,w,e) = p.entrena (conjunto = B, salidas = yn)
+  print('Final\n\tPesos: (Theta) {} {}\tError: {}'.format(t,w,e))
