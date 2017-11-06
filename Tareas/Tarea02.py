@@ -8,7 +8,22 @@ def ejercicio1 ():
   ### EJERCICIO 1:
   ### SEPARACIÓN DE PATRONES
 
-  pass
+  # XOR
+  X = np.array([[0,0],
+                [0,1],
+                [1,0],
+                [1,1]])
+  Y = np.array([0,1,1,0])
+  xx, yy = np.meshgrid(np.arange(-.05, 1.05, .02), np.arange(-.05, 1.05, .02))
+  nn = MLPClassifier(solver='lbfgs',activation='logistic',hidden_layer_sizes=(3,))
+  nn.fit(X,Y)
+  Z = nn.predict(np.c_[xx.ravel(),yy.ravel()])
+  Z = Z.reshape(xx.shape)
+  plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral, alpha=0.8)
+  plt.scatter(X[:,0], X[:,1], c=Y, edgecolors='w')
+  plt.title('Red neuronal\nSeparación de patrones XOR')
+  plt.show()
+
 
 def ejercicio2 ():
   ### EJERCICIO 2:
@@ -33,28 +48,20 @@ def ejercicio2 ():
   xx, yy = np.meshgrid(np.arange(x_min, x_max, .02), np.arange(y_min, y_max, .02))
   # Creamos redes neuronales con una capa oculta y
   # distinto número de neuronas en esta capa.
-  paramsl = [{'solver':'lbfgs',
+  sizel = [(6,),
+           (16,),
+           (25,),
+           (50,),
+           (100,),
+           (25,18),
+           (50,50),
+           (100,100)]
+  for size in sizel:
+    params = {'solver':'lbfgs',
     'activation':'tanh',
-    'hidden_layer_sizes':(6,)},
-    {'solver':'lbfgs',
-    'activation':'tanh',
-    'hidden_layer_sizes':(16,)},
-    {'solver':'lbfgs',
-    'activation':'tanh',
-    'hidden_layer_sizes':(25,)},
-    {'solver':'lbfgs',
-    'activation':'tanh',
-    'hidden_layer_sizes':(50,)},
-    {'solver':'lbfgs',
-    'activation':'tanh',
-    'hidden_layer_sizes':(25,18)},
-    {'solver':'lbfgs',
-    'activation':'tanh',
-    'hidden_layer_sizes':(50,50)}]
-  for params in paramsl:
+    'hidden_layer_sizes':size}
     nn = MLPClassifier (**params)
     # Entrenamos
-    # nn.fit(X,Y)
     nn.fit(x_train,y_train)
     # Vemos que tan precisa es la red neuronal
     score = nn.score(x_test,y_test)
