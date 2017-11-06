@@ -15,7 +15,8 @@ def ejercicio1 ():
                 [1,1]])
   Y = np.array([0,1,1,0])
   xx, yy = np.meshgrid(np.arange(-.05, 1.05, .02), np.arange(-.05, 1.05, .02))
-  nn = MLPClassifier(solver='lbfgs',activation='logistic',hidden_layer_sizes=(3,))
+  nn = MLPClassifier(solver='lbfgs',activation='logistic',
+    hidden_layer_sizes=(3,),alpha=0.001)
   nn.fit(X,Y)
   Z = nn.predict(np.c_[xx.ravel(),yy.ravel()])
   Z = Z.reshape(xx.shape)
