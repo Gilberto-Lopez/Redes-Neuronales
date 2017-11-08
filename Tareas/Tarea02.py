@@ -25,7 +25,6 @@ def ejercicio1 ():
   plt.title('Red neuronal\nSeparación de patrones XOR')
   plt.show()
 
-
 def ejercicio2 ():
   ### EJERCICIO 2:
   ### SOBREENTRENAMIENTO
@@ -113,7 +112,77 @@ def ejercicio4 ():
   plt.legend (['f(x)','Red Neuronal'])
   plt.show()
 
+def ejercicio5 (e):
+  ### EJERCICIO 5:
+  ### ANÁLISIS DE LAS MATRICES DE PESOS
+
+  if e == 1:
+    ### Ejercicio 1
+    ### SEPARACIÓN DE PATRONES
+
+    # XOR
+    X = np.array([[0,0],
+                  [0,1],
+                  [1,0],
+                  [1,1]])
+    Y = np.array([0,1,1,0])
+    xx, yy = np.meshgrid(np.arange(-.05, 1.05, .02), np.arange(-.05, 1.05, .02))
+    nn = MLPClassifier(solver='lbfgs',activation='logistic',
+      hidden_layer_sizes=(3,),alpha=0.001)
+    # 1 iteración para ver los pesos de la red tras un fit.
+    nn.max_iter = 1
+    nn.fit(X,Y)
+    # Obtenemos la lista de matrices de pesos
+    print('Antes del entrenamiento')
+    W = nn.coefs_
+    for w in W:
+      print(w)
+      print('svd: {}\n'.format(np.linalg.svd(w,compute_uv=False)))
+    # 200 iteraciones (valor default)  
+    nn.max_iter = 200
+    nn.fit(X,Y)
+    # Obtenemos la lista de matrices de pesos después de haber entrenado la red
+    print('Después del entrenamiento')
+    W = nn.coefs_
+    for w in W:
+      print(w)
+      print('svd: {}\n'.format(np.linalg.svd(w,compute_uv=False)))
+  elif e == 4:
+    ### EJERCICIO 4:
+    ### APROXIMACIÓN DE FUNCIONES
+
+    f = lambda x: 0.2+0.4*x**2+0.3*x*np.sin(15*x)+0.05*np.cos(50*x)
+    xx = np.linspace (0,1,500)
+    yy = f (xx)
+    xx = xx.reshape(-1,1)
+    params = {'solver':'lbfgs',
+      'activation':'tanh',
+      'hidden_layer_sizes':(50,)}
+    nn = MLPRegressor (**params)
+    # 1 iteración para ver los pesos de la red tras un fit.
+    nn.max_iter = 1
+    nn.fit(xx,yy)
+    # Obtenemos la lista de matrices de pesos
+    print('Antes del entrenamiento')
+    W = nn.coefs_
+    for w in W:
+      print(w)
+      print('svd: {}\n'.format(np.linalg.svd(w,compute_uv=False)))
+    # 200 iteraciones (valor default)  
+    nn.max_iter = 200
+    nn.fit(xx,yy)
+    # Obtenemos la lista de matrices de pesos después de haber entrenado la red
+    print('Después del entrenamiento')
+    W = nn.coefs_
+    for w in W:
+      print(w)
+      print('svd: {}\n'.format(np.linalg.svd(w,compute_uv=False)))
+  else:
+    pass
+
 if __name__ == '__main__':
   ejercicio1 ()
+  ejercicio5 (1)
   ejercicio2 ()
   ejercicio4 ()
+  ejercicio5 (4)
